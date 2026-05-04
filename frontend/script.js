@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'https://expense-tracker-project-gf.onrender.com';
 
 let transactions = [];
 let monthlyIncome = 0;
