@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-overlay">
+        <div class="auth-container">
+            <!-- Brand Panel -->
+            <div class="auth-brand">
+                <div class="auth-brand-content">
+                    <div class="auth-brand-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h1>Expense Tracker</h1>
+                    <p>Take control of your finances. Track spending, set budgets, and achieve your financial goals.</p>
+                    <div class="auth-brand-features">
+                        <div class="auth-feature"><i class="fas fa-chart-line"></i> Real-time analytics</div>
+                        <div class="auth-feature"><i class="fas fa-shield-alt"></i> Secure & private</div>
+                        <div class="auth-feature"><i class="fas fa-cloud"></i> Cloud synced</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Panel -->
+            <div class="auth-form-panel" id="loginPanel">
+                <div class="auth-form-wrapper">
+                    <h2>Welcome back</h2>
+                    <p class="auth-subtitle">Sign in to your account to continue</p>
+
+                    <div id="loginAlert" class="auth-alert" style="display: none;"></div>
+
+                    <form onsubmit="event.preventDefault(); handleLogin();">
+                        <div class="auth-field">
+                            <label>Email address</label>
+                            <div class="auth-input-wrapper">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="loginEmail" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label>Password</label>
+                            <div class="auth-input-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="auth-btn auth-btn-primary" id="loginBtn">
+                            <span>Sign In</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <div class="auth-divider"><span>or</span></div>
+
+                    <button class="auth-btn auth-btn-google" onclick="handleGoogleLogin()">
+                        <img src="https://www.google.com/favicon.ico" alt="Google" width="18" height="18">
+                        <span>Continue with Google</span>
+                    </button>
+
+                    <p class="auth-switch">
+                        Don't have an account? <a href="#" onclick="showSignup(); return false;">Create account</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Signup Panel -->
+            <div class="auth-form-panel" id="signupPanel" style="display: none;">
+                <div class="auth-form-wrapper">
+                    <h2>Create account</h2>
+                    <p class="auth-subtitle">Start your financial journey today</p>
+
+                    <div id="signupAlert" class="auth-alert" style="display: none;"></div>
+
+                    <form onsubmit="event.preventDefault(); handleSignup();">
+                        <div class="auth-field">
+                            <label>Email address</label>
+                            <div class="auth-input-wrapper">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="signupEmail" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label>Password</label>
+                            <div class="auth-input-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="signupPassword" placeholder="Min 6 characters" required minlength="6">
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label>Confirm Password</label>
+                            <div class="auth-input-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="signupConfirm" placeholder="Repeat password" required minlength="6">
+                            </div>
+                        </div>
+                        <button type="submit" class="auth-btn auth-btn-primary" id="signupBtn">
+                            <span>Create Account</span>
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                    </form>
+
+                    <p class="auth-switch">
+                        Already have an account? <a href="#" onclick="showLogin(); return false;">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="appHeader" class="header" style="display: none;">
+        <h1 id="greetingText">Good Morning, Nick!</h1>
+        <div class="header-controls">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <div class="date-picker">
+                <i class="fas fa-calendar"></i>
+                <span id="currentDate">16 January 2025</span>
+            </div>
+            <button class="export-btn" onclick="exportToCSV()">
+                <i class="fas fa-download"></i>
+                Export
+            </button>
+            <button class="export-btn" style="background-color: #ef4444; color: white;" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <div id="appMain" class="main-content" style="display: none;">
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Income</h3>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="amount income-amount">0 đ</div>
+                <div class="change" id="incomeChange">
+                    <i class="fas fa-minus"></i>
+                    No data yet
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Expenses</h3>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="amount expense-amount">0 đ</div>
+                <div class="change" id="expenseChange">
+                    <i class="fas fa-minus"></i>
+                    No data yet
+                </div>
+            </div>
+
+            <div class="card my-card">
+                <div class="card-header">
+                    <h3 class="card-title">My Card</h3>
+                    <select id="cardThemeSelector" onchange="changeCardTheme()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; outline: none; backdrop-filter: blur(4px);">
+                        <option value="default" style="color: black;">Default</option>
+                        <option value="capybara1" style="color: black;">Capybara 1</option>
+                        <option value="capybara2" style="color: black;">Capybara 2</option>
+                        <option value="capybara3" style="color: black;">Capybara 3</option>
+                        <option value="snoopy1" style="color: black;">Snoopy 1</option>
+                        <option value="snoopy2" style="color: black;">Snoopy 2</option>
+                        <option value="snoopy3" style="color: black;">Snoopy 3</option>
+                        <option value="snoopy4" style="color: black;">Snoopy 4</option>
+                        <option value="snoopy5" style="color: black;">Snoopy 5</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 0.75rem;">Linked to your primary wallet</div>
+
+                <div class="card-chip"></div>
+                <div class="card-number">
+                    <span>5435</span>
+                    <span>2735</span>
+                    <span>0037</span>
+                    <span>0015</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <div style="font-size: 0.625rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em;">Card Holder</div>
+                        <div class="card-holder" id="cardHolderName">Nick Kenter</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.625rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em;">Expires</div>
+                        <div style="font-size: 0.875rem;">09/28</div>
+                    </div>
+                </div>
+
+                <div class="card-logo">
+                    <div class="card-logo-circle logo-red"></div>
+                    <div class="card-logo-circle logo-orange"></div>
+                </div>
+
+                <div class="spending-section">
+                    <div style="margin-bottom: 0.25rem; font-size: 0.875rem; opacity: 0.9;">Balance</div>
+                    <div class="spending-limit" id="balanceAmount" style="color: white; font-size: 1.5rem;">0 đ</div>
+                    <div class="spending-used" id="balanceUsedText" style="color: rgba(255,255,255,0.7);">remaining from income</div>
+                    <div class="progress-bar" style="background: rgba(255,255,255,0.2);">
+                        <div class="progress-fill" id="balanceProgressFill" style="background: #fbbf24;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Overview</h3>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <select id="chartPeriod" onchange="updateOverviewChart()" class="chart-select">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                        <select id="chartFilter" onchange="updateOverviewChart()" class="chart-select">
+                            <option value="both">Income & Expense</option>
+                            <option value="income">Income Only</option>
+                            <option value="expense">Expense Only</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chart-container" id="overviewChart">
+                </div>
+                <div class="chart-labels" id="chartLabels">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">All Expenses</h3>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem;">Spending breakdown by category
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="total-expenses" id="totalExpensesAmount">0 đ</div>
+                    
+                    <div class="color-bar" id="categoryColorBar"></div>
+                    
+                    <ul class="expense-categories" id="categoryList">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card transactions-section">
+            <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+                <div class="filters">
+                    <button class="filter-btn" onclick="sortTransactions()" id="sortBtn">
+                        <i class="fas fa-sort"></i>
+                        Sort
+                    </button>
+                    <select class="filter-btn" id="filterCategory" onchange="filterTransactions()">
+                        <option value="all">All Categories</option>
+                        <option value="income">Income Only</option>
+                        <option value="expense">Expense Only</option>
+                        <option value="Food">Food</option>
+                        <option value="Health">Health</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Business">Business</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="transactions-table">
+                <thead>
+                    <tr>
+                        <th onclick="sortByColumn('date')" style="cursor: pointer;">Date <i class="fas fa-sort"></i></th>
+                        <th onclick="sortByColumn('category')" style="cursor: pointer;">Category <i class="fas fa-sort"></i></th>
+                        <th onclick="sortByColumn('amount')" style="cursor: pointer;">Amount <i class="fas fa-sort"></i></th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="noTransactions" style="text-align: center; padding: 2rem; color: #9ca3af; display: none;">
+                <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <p>No transactions yet. Add your first income or expense!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Income/Expense Buttons -->
+    <div class="add-buttons">
+        <button class="fab fab-income" onclick="openIncomeModal()" title="Add Income">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="fab fab-expense" onclick="openExpenseModal()" title="Add Expense">
+            <i class="fas fa-minus"></i>
+        </button>
+    </div>
+
+    <!-- Income Modal -->
+    <div id="incomeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Income</h2>
+                <button class="close-btn" onclick="closeModal('incomeModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="incomeForm">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="incomeAmount" placeholder="Enter amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="incomeCategory" required>
+                            <option value="">Select category</option>
+                            <option value="salary">Salary</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="business">Business</option>
+                            <option value="investment">Investment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-input" id="incomeDescription" placeholder="Enter description">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="incomeDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('incomeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addIncome()">Add Income</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Expense</h2>
+                <button class="close-btn" onclick="closeModal('expenseModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="expenseAmount" placeholder="Enter amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="expenseCategory" required>
+                            <option value="">Select category</option>
+                            <option value="food">Food</option>
+                            <option value="health">Health</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="investment">Investment</option>
+                            <option value="transport">Transport</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-input" id="expenseDescription" placeholder="Enter description">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="expenseDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addExpense()">Add Expense</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete Transaction</h2>
+                <button class="close-btn" onclick="closeModal('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this transaction?</p>
+                <p id="deleteDetail" style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="btn" style="background: #ef4444; color: white;" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

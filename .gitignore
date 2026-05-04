@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cấu hình Firebase (BÍ MẬT - TUYỆT ĐỐI KHÔNG XÓA DÒNG NÀY)
+firebase_service_account.json
+.env
+
+# Môi trường ảo
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
