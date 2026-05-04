@@ -86,8 +86,13 @@ def google_oauth_start():
     return RedirectResponse(url)
 
 @router.get("/google/callback")
-def google_oauth_callback(code: str):
+def google_oauth_callback(code: str = None, error: str = None):
     try:
+        if error:
+            raise Exception(f"Google login failed or was cancelled: {error}")
+        if not code:
+            raise Exception("No authorization code received from Google")
+            
         token_url = "https://oauth2.googleapis.com/token"
         token_data = {
             "client_id": settings.google_client_id,
